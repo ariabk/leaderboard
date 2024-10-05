@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bridge Scholars Leaderboard</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap');
+      body {
+	  background-color: black;
+	  color: #5df70b;
+	  font-family: "IBM Plex Mono";
+	  list-style-position: inside;
+      }
+      ol {
+	  line-height: 26pt;
+	  display: inline-block;
+      }
+      li {
+	  position: relative;
+	  left: 160%;
+	  font-size: 20px;
+	  color: white;
+      }
+      @media (max-width: 1000px) {
+	  li {
+	      position: relative;
+	      left: -10px;
+	      color: white;
+	  }
+      }
+    </style>
+  </head>
+  <body>
+    <center>
+      <h1>Bridge Scholars Leaderboard</h1>
+      <h2>Top Ten</h2>
+      <em style="text-align:center;">(top 3 get a prize and certificate)</em><br>
+    </center>
+    <script src="papaparse.min.js" ></script>
+    <script>
+      function addTimes(time1, time2) {
+	  const [hours1, minutes1, seconds1] = time1.split(':').map(Number);
+	  const [hours2, minutes2, seconds2] = time2.split(':').map(Number);
+
+	  const date = new Date();
+	  date.setHours(hours1, minutes1, seconds1);
+
+	  const additionalSeconds = hours2 * 3600 + minutes2 * 60 + seconds2;
+	  date.setSeconds(date.getSeconds() + additionalSeconds);
+
+	  const resultHours = String(date.getHours()).padStart(2, '0');
+	  const resultMinutes = String(date.getMinutes()).padStart(2, '0');
+	  const resultSeconds = String(date.getSeconds()).padStart(2, '0');
+
+	  return `${resultHours}:${resultMinutes}:${resultSeconds}`;
+      }
+      Papa.parse("https://corsproxy.io/?https://docs.google.com/spreadsheets/d/e/2PACX-1vR6p4pyQ-RGAxhyFC-xKWpo8CbMHu-R7a2MGew8RgJ_g52ZOUTKQy3tjG_SU5z0jDL9loe4LUiiVKBZ/pub?output=csv",
+		 {
+		     download: true,
+		     header: true,
+		     complete: function(results) {
+			 let times = [];
+			 console.log(results);
+			 for (let i = 0; i < results.data.length; i++) {
+			     console.log(results.data[i]['What is your name?']);
+			     hours = "0:00:00";
+			     name = results.data[i]['What is your name?'];
+			     for (let k = 0; k < results.data.length; k++) {
+				 if (name == results.data[k]['What is your name?']) {
+				     hours = addTimes(results.data[k]['Total Hours'], hours);
+				 }
+			     }
+			     times.push([hours, name]);
+			 }
+			 times.sort(function (a, b) {
+			     return b[0].localeCompare(a[0]);
+			 });
+			 times = Array.from(new Set(times.map(JSON.stringify))).map(JSON.parse);
+			 console.log(times);
+			 const list = document.createElement("ol");
+			 for (let i = 0; i < Math.min(times.length, 10); i++) {
+			     const li = list.appendChild(document.createElement("li"));
+			     li.textContent = times[i][1] + " - " + times[i][0] + " hours";
+			     if (i == 0) {
+				 li.style.color = "#edbe10";
+				 li.style['font-weight'] = "bold";
+			     } else if (i == 1) {
+				 li.style.color = "#c0c0c0";
+				 li.style['font-weight'] = "bold";
+			     } else if (i == 2) {
+				 li.style.color = "#cd7f32";
+				 li.style['font-weight'] = "bold";
+			     }
+			 }
+			 document.body.appendChild(list);
+			 console.log(times);
+		     }
+		 });
+    </script>
+  </body>
+</ahtml>
